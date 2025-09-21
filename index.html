@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>100-дневный челлендж — прогресс</title>
+  <style>
+    :root{
+      --bg:#0b0d10; --card:#111418; --fg:#e7e9ee; --muted:#9aa3af; --accent:#7dd3fc;
+      --ok:#34d399; --warn:#f59e0b; --bad:#ef4444; --grid:#1a1f24; --cell:#222831; --cell-filled:#60a5fa;
+      --radius:16px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;height:100%;background:transparent;color:var(--fg);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;position:relative;overflow-x:hidden}
+    
+    /* Анимированный фон */
+    .bg-animation {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -2;
+      background: linear-gradient(45deg, #0b0d10, #111827, #0b0d10, #1e293b, #0b0d10);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+    }
+    
+    /* Переливающаяся сетка на фоне */
+    .bg-grid {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      background-image: 
+        linear-gradient(rgba(59, 130, 246, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59, 130, 246, 0.08) 1px, transparent 1px);
+      background-size: 40px 40px;
+      animation: gridMove 12s linear infinite;
+    }
+    
+    @keyframes gridMove {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(40px, 40px); }
+    }
+    
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
+    .bg-particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      pointer-events: none;
+    }
+    
+    .particle {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: rgba(125, 211, 252, 0.3);
+      border-radius: 50%;
+      animation: float 20s infinite linear;
+    }
+    
+    @keyframes float {
+      0% {
+        transform: translateY(100vh) translateX(0);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      90% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-100px) translateX(100px);
+        opacity: 0;
+      }
+    }
+    .wrap{max-width:1080px;margin:0 auto;padding:20px}
+    header{text-align:center;margin-bottom:8px}
+    .title{font-size:48px;font-weight:700;letter-spacing:-0.5px;margin-bottom:12px;background:linear-gradient(135deg, #ffffff, #a855f7, #3b82f6, #06b6d4);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-size:200% 200%;animation:titleGradient 3s ease infinite}
+    .sub{color:var(--muted);font-size:18px;font-weight:400}
+    
+    @keyframes titleGradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .pill{display:inline-flex;gap:8px;align-items:center;padding:6px 10px;border-radius:999px;background:#0f141a;border:1px solid #1f242b;font-size:12px}
+    .card{background:transparent;border:none;border-radius:var(--radius);padding:16px}
+
+
+    /* Сетка 1000 клеток */
+    .grid{display:grid;gap:3px;grid-template-columns:repeat(40, minmax(0,1fr));
+      background:transparent;padding:20px;position:relative}
+    .cell{
+      aspect-ratio:1/1;border-radius:0px;background:#1a1a1a;border:none;
+      position:relative;overflow:hidden;transition:all 0.2s ease;cursor:pointer;
+      box-shadow:0 1px 3px rgba(0,0,0,0.3)
+    }
+    .cell:hover{transform:scale(1.05);z-index:10;box-shadow:0 2px 8px rgba(0,0,0,0.4)}
+    
+    .cell.filled{
+      background: linear-gradient(135deg, #8b5cf6, #3b82f6, #06b6d4, #10b981);
+      background-size: 200% 200%;
+      animation: cellGradient 4s ease infinite;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+    
+    @keyframes cellGradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
+    
+    /* частично заполненная (если решишь учитывать дробные часы) */
+    .cell.partial::after{
+      content:""; position:absolute; left:0; top:0; bottom:0; width:var(--part,0%);
+      background:linear-gradient(90deg, rgba(255,255,255,.12), rgba(255,255,255,.12));
+    }
+
+    .footer{margin-top:12px;font-size:12px;color:var(--muted);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+
+    /* Информационные блоки в стиле Florin Pop */
+    .info-blocks {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0;
+      margin-top: 40px;
+      padding: 0;
+      max-width: 1080px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .info-block {
+      background: linear-gradient(135deg, #0f141a 0%, #1a1f24 100%);
+      border: 1px solid #1f242b;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      margin: 0 4px;
+    }
+
+    .info-block:first-child {
+      margin-left: 0;
+    }
+
+    .info-block:last-child {
+      margin-right: 0;
+    }
+
+    .info-block::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #8b5cf6, #3b82f6, #06b6d4, #10b981);
+      background-size: 200% 100%;
+      animation: gradientShift 3s ease infinite;
+    }
+
+    .info-block:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+      border-color: #3b82f6;
+    }
+
+    .info-title {
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .info-title .small-text {
+      font-size: 10px;
+      text-transform: none;
+      font-weight: 400;
+      letter-spacing: 0.2px;
+    }
+
+    .info-title::before {
+      content: '';
+      width: 4px;
+      height: 4px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse 2s ease infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .info-value {
+      color: var(--fg);
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #ffffff, #a855f7, #3b82f6);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-size: 200% 200%;
+      animation: titleGradient 3s ease infinite;
+    }
+
+    .info-subtitle {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 400;
+      margin-top: 4px;
+    }
+
+    /* Прогресс-бар для Total Hours */
+    .info-progress {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .info-progress-bar {
+      flex: 1;
+      height: 8px;
+      background: #1f242b;
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .info-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #8b5cf6, #3b82f6, #06b6d4, #10b981);
+      background-size: 200% 100%;
+      animation: gradientShift 3s ease infinite;
+      border-radius: 4px;
+      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+
+    .info-progress-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      animation: shimmer 2s ease infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .info-percentage {
+      color: var(--accent);
+      font-size: 18px;
+      font-weight: 700;
+      min-width: 50px;
+      text-align: right;
+    }
+
+
+
+    /* Адаптивность */
+    @media (max-width: 768px) {
+      .info-blocks {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        margin-top: 24px;
+        padding: 0 20px;
+      }
+      
+      .info-block {
+        margin: 0;
+      }
+      
+      .info-block {
+        padding: 20px;
+      }
+      
+      .info-value {
+        font-size: 24px;
+      }
+      
+      .info-progress {
+        flex-direction: column;
+        gap: 12px;
+        align-items: stretch;
+      }
+      
+      .info-percentage {
+        text-align: center;
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Анимированный фон -->
+  <div class="bg-animation"></div>
+  <div class="bg-grid"></div>
+  <div class="bg-particles" id="particles"></div>
+  
+  <div class="wrap">
+    <header>
+      <div class="title">1000 Hours Grid</div>
+      <div class="sub">Для 100-дневного челленджа. Каждый квадрат представляет 1 час.</div>
+    </header>
+
+    <section class="card">
+      <div id="grid" class="grid" aria-label="Grid of hours"></div>
+      
+
+      <div class="footer">
+        <div id="percent" class="muted"></div>
+      </div>
+    </section>
+
+    <!-- Дополнительные информационные блоки -->
+    <section class="info-blocks">
+      <div class="info-block">
+        <div class="info-title">Total</div>
+        <div class="info-value" id="totalHours">0 <span class="small-text">hours</span></div>
+        <div class="info-progress">
+          <div class="info-progress-bar">
+            <div class="info-progress-fill" id="totalProgressFill"></div>
+          </div>
+          <div class="info-percentage" id="totalPercentage">0%</div>
+        </div>
+      </div>
+      
+      <div class="info-block">
+        <div class="info-title">Time Remaining <span class="small-text">(until 01.01.2026)</span></div>
+        <div class="info-value" id="timeRemaining">—</div>
+        <div class="info-progress">
+          <div class="info-progress-bar">
+            <div class="info-progress-fill" id="timeProgressFill"></div>
+          </div>
+          <div class="info-percentage" id="timePercentage">0%</div>
+        </div>
+      </div>
+      
+      <div class="info-block">
+        <div class="info-title">Last Updated</div>
+        <div class="info-value" id="lastUpdated">—</div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // ---- откуда подтягиваем данные ----
+    const DATA_URL = 'progress.json'; // лежит рядом с index.html
+
+    // ---- элементы ----
+    const gridEl     = document.getElementById('grid');
+    const percentEl  = document.getElementById('percent');
+    const totalHours = document.getElementById('totalHours');
+    const totalProgressFill = document.getElementById('totalProgressFill');
+    const totalPercentage = document.getElementById('totalPercentage');
+    const timeRemaining = document.getElementById('timeRemaining');
+    const timeProgressFill = document.getElementById('timeProgressFill');
+    const timePercentage = document.getElementById('timePercentage');
+    const lastUpdated = document.getElementById('lastUpdated');
+
+    // ---- утилиты ----
+    const clamp = (v,min,max)=>Math.max(min,Math.min(max,v));
+    const fmt   = (n, d=1)=>Number(n).toFixed(d).replace(/\.0$/,'');
+    const toISODate = (d)=>new Date(d).toISOString().slice(0,10);
+
+    // ---- основной рендер ----
+    function render(data){
+      const goal = Number(data.goal||1000);
+      const start = data.startDate ? toISODate(data.startDate) : '—';
+      const updated = data.updatedAt ? new Date(data.updatedAt) : null;
+
+      // total часов всегда вычисляем из byDay
+      let total = 0;
+      if (data.byDay && typeof data.byDay === 'object') {
+        total = Object.values(data.byDay).reduce((a,b)=>a+Number(b||0),0);
+      }
+
+      // метрики
+      const startDate = data.startDate ? new Date(data.startDate) : null;
+      const today = new Date();
+      const dayIdx = startDate ? (Math.floor((today - startDate)/(1000*60*60*24)) + 1) : 0;
+      const daysPassed = clamp(dayIdx, 0, 100);
+      const remainDays = clamp(100 - daysPassed, 0, 100);
+      const pct = clamp(total/goal*100, 0, 100);
+      const avg = daysPassed>0 ? total/daysPassed : 0;
+      const needPerDay = remainDays>0 ? (goal - total)/remainDays : 0;
+
+      percentEl.textContent = '';
+
+      // Обновляем информационные блоки
+      updateInfoBlocks(total, goal, pct, remainDays, updated);
+
+      // сетка 1000 (25 x 40)
+      const totalCells = 1000;
+      const full = Math.floor(total);
+      const frac = clamp(total - full, 0, 0.9999); // дробная часть
+
+      // (пере)создаём клетки, если нужно
+      if (gridEl.children.length !== totalCells) {
+        gridEl.innerHTML = '';
+        for (let i=0;i<totalCells;i++){
+          const div = document.createElement('div');
+          div.className = 'cell';
+          gridEl.appendChild(div);
+        }
+      }
+      // заливаем
+      const cells = Array.from(gridEl.children);
+      cells.forEach((c,i)=>{
+        c.classList.toggle('filled', i < full);
+        c.classList.toggle('partial', false);
+        c.style.setProperty('--part','0%');
+      });
+      if (full < totalCells && frac > 0) {
+        const c = cells[full];
+        if (c){
+          c.classList.add('filled','partial');
+          c.style.setProperty('--part', `${Math.round(frac*100)}%`);
+        }
+      }
+    }
+
+    // ---- обновление информационных блоков ----
+    function updateInfoBlocks(total, goal, pct, remainDays, updated) {
+      // Total Hours блок
+      if (totalHours) {
+        totalHours.innerHTML = `${fmt(total, 1)} <span class="small-text">hours</span>`;
+      }
+      if (totalProgressFill && totalPercentage) {
+        totalProgressFill.style.width = `${pct}%`;
+        totalPercentage.textContent = `${fmt(pct, 1)}%`;
+      }
+
+      // Time Remaining блок
+      if (timeRemaining) {
+        if (remainDays > 0) {
+          const dayText = remainDays === 1 ? 'day' : 'days';
+          timeRemaining.textContent = `${remainDays} ${dayText}`;
+        } else {
+          timeRemaining.textContent = 'Completed';
+        }
+      }
+      
+      // Прогресс-бар времени (показывает сколько дней прошло из 100)
+      const timeProgress = remainDays > 0 ? ((100 - remainDays) / 100) * 100 : 100;
+      if (timeProgressFill && timePercentage) {
+        timeProgressFill.style.width = `${timeProgress}%`;
+        timePercentage.textContent = `${fmt(timeProgress, 1)}%`;
+      }
+
+      // Last Updated блок
+      if (lastUpdated) {
+        if (updated) {
+          const now = new Date();
+          const diffTime = now - updated;
+          const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+          
+          if (diffDays === 0) {
+            lastUpdated.textContent = 'Today';
+          } else {
+            lastUpdated.textContent = updated.toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric'
+            });
+          }
+        } else {
+          lastUpdated.textContent = '—';
+        }
+      }
+    }
+
+
+    // ---- загрузка JSON (с анти-кэшером) ----
+    async function load(){
+      try{
+        const res = await fetch(`${DATA_URL}?t=${Date.now()}`, {cache:'no-store'});
+        if(!res.ok) throw new Error('HTTP '+res.status);
+        const data = await res.json();
+        render(data);
+      }catch(e){
+        console.error('Не удалось загрузить progress.json:', e);
+        document.getElementById('percent').textContent = 'Ошибка загрузки данных';
+      }
+    }
+
+    // ---- анимированные частицы ----
+    function createParticles() {
+      const particlesContainer = document.getElementById('particles');
+      const particleCount = 50;
+      
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 20 + 's';
+        particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+        particlesContainer.appendChild(particle);
+      }
+    }
+
+    load();
+    createParticles();
+    // можно автообновлять раз в 5 минут (если нужно — оставь; если нет — удали строку ниже)
+    setInterval(load, 5*60*1000);
+  </script>
+</body>
+</html>
