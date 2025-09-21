@@ -137,9 +137,9 @@
     .info-blocks {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
-      gap: 0;
+      gap: 8px;
       margin-top: 40px;
-      padding: 0;
+      padding: 0 36px;
       max-width: 1080px;
       margin-left: auto;
       margin-right: auto;
@@ -154,16 +154,9 @@
       transition: all 0.3s ease;
       position: relative;
       overflow: hidden;
-      margin: 0 4px;
     }
 
-    .info-block:first-child {
-      margin-left: 0;
-    }
-
-    .info-block:last-child {
-      margin-right: 0;
-    }
+    
 
     .info-block::before {
       content: '';
@@ -291,11 +284,28 @@
 
     /* Адаптивность */
     @media (max-width: 768px) {
+      .wrap {
+        padding: 12px;
+      }
+
+      header { margin-bottom: 4px; }
+      .title { font-size: 32px; line-height: 1.1; }
+      .sub { font-size: 14px; }
+
+      .grid {
+        grid-template-columns: repeat(20, minmax(0, 1fr));
+        gap: 4px;
+        padding: 12px;
+      }
+
+      .cell {
+        border-radius: 6px;
+      }
       .info-blocks {
         grid-template-columns: 1fr;
-        gap: 16px;
-        margin-top: 24px;
-        padding: 0 20px;
+        gap: 12px;
+        margin-top: 20px;
+        padding: 0 28px;
       }
       
       .info-block {
@@ -303,11 +313,31 @@
       }
       
       .info-block {
-        padding: 20px;
+        padding: 16px;
+        border-radius: 12px;
       }
       
       .info-value {
-        font-size: 24px;
+        font-size: 22px;
+      }
+      
+      .info-title {
+        font-size: 12px;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      
+      .info-title .small-text {
+        display: block;
+        font-size: 10px;
+        opacity: 0.85;
+        margin-top: 2px;
+      }
+
+      .info-title, .info-value { 
+        word-break: break-word; 
+        overflow-wrap: anywhere; 
       }
       
       .info-progress {
@@ -315,10 +345,11 @@
         gap: 12px;
         align-items: stretch;
       }
+      .info-progress-bar { height: 6px; }
       
       .info-percentage {
         text-align: center;
-        font-size: 16px;
+        font-size: 14px;
       }
     }
   </style>
